@@ -61,7 +61,7 @@ class Device:
 
     def __init__(self, ip, username, password, *,driver_type='ios'):
         klass = get_network_driver(driver_type)
-        self._driver = klass(ip, username, driver)
+        self._driver = klass(ip, username, password)
 
     def __enter__(self):
         self._driver.open()
