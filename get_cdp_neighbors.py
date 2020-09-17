@@ -2,6 +2,7 @@ import getpass
 import pprint
 from napalm import get_network_driver
 from collections import deque
+from dataclasses import dataclass
 
 def parse_cdp(result):
     cdp=[]
