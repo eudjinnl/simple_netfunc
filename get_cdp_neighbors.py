@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     while queue:
         host = queue.pop()
-        print(f'connecting to {host.name}, ip: {hosts.ip}')
+        print(f'connecting to {host.name}, ip: {host.ip}')
         with Device(host.ip, username, password) as device:
             result = device.neighbors()
             print(f'Parsing cdp output for {host.name}')
