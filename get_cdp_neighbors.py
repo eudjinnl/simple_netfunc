@@ -55,7 +55,7 @@ class Host:
     name : str
     ip : str
     platform : str
-    cdp : dict = {}
+    cdp : dict
 
 class Device:
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         facts = device.facts
 
     queue = deque()
-    queue.append(Host(facts['fqdn'], dev_ip, 'cisco ' + facts['model']))
+    queue.append(Host(facts['fqdn'], dev_ip, 'cisco ' + facts['model'], {}))
     visited_hosts = set()
     processed = []
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             # print(item)
             for pattern in patterns:
                 if pattern in item["nbr_platform"] and item["nbr_name"] not in visited_hosts:
-                    queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"]))
+                    queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
                     print(f'Host {item["nbr_name"]} has been added\n\n')
 
     pprint.pprint(processed)
