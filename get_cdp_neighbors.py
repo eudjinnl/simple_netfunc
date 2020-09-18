@@ -2,7 +2,7 @@ import getpass
 import pprint
 from napalm import get_network_driver
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 def parse_cdp(result):
     cdp=[]
@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     queue = deque()
     queue.append(Host(facts['fqdn'], dev_ip, 'cisco ' + facts['model'], {}))
-    visited_hosts = set()
+    known_hosts = {queue[0].name}
     processed = []
 
     while queue:
@@ -112,17 +112,18 @@ if __name__ == "__main__":
             # print(cdp)
 
         processed.append(host)
-        visited_hosts.append(host.name)
 
         patterns = ['WS-C', 'C9200', 'C9300']
         for item in host.cdp:
             # print(item)
             for pattern in patterns:
-                if pattern in item["nbr_platform"] and item["nbr_name"] not in visited_hosts:
+                if pattern in item["nbr_platform"] and item["nbr_name"] not in known_hosts:
                     queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
+                    known_hosts.add(queue[-1].name)
                     print(f'Host {item["nbr_name"]} has been added\n\n')
 
-    pprint.pprint(processed)
+    pprint.pprint([asdict(h) for h in processed])
+
     for host in processed:
         print(host.name)
 
