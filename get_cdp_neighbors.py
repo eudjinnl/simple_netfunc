@@ -41,11 +41,6 @@ def parse_cdp(result):
 
             cdp.append(neighbor)
 
-            # print(dev_name)
-            # print(ip)
-            # print(platform)
-            # print(local_int)
-            # print(remote_int)
 
         i +=1
     return cdp
@@ -101,26 +96,21 @@ if __name__ == "__main__":
 
     while queue:
         host = queue.pop()
-        print(f'connecting to {host.name}, ip: {host.ip}')
+        print(f'\n\nConnecting to {host.name}, ip: {host.ip}')
         with Device(host.ip, username, password) as device:
             result = device.neighbors()
-            print(f'Parsing cdp output for {host.name}')
+            print(f'   Parsing cdp output for {host.name}')
             host.cdp = parse_cdp(result)
-            # print('\n\n\n')
-            # pprint.pprint(hosts)
-            # print('\n')
-            # print(cdp)
 
         processed.append(host)
 
         patterns = ['WS-C', 'C9200', 'C9300']
         for item in host.cdp:
-            # print(item)
             for pattern in patterns:
                 if pattern in item["nbr_platform"] and item["nbr_name"] not in known_hosts:
                     queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
                     known_hosts.add(queue[-1].name)
-                    print(f'Host {item["nbr_name"]} has been added\n\n')
+                    print(f'    Host {item["nbr_name"]} has been added\n\n')
 
     pprint.pprint([asdict(h) for h in processed])
 
