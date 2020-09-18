@@ -110,7 +110,7 @@ if __name__ == "__main__":
                 if pattern in item["nbr_platform"] and item["nbr_name"] not in known_hosts:
                     queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
                     known_hosts.add(queue[-1].name)
-                    print(f'    Host {item["nbr_name"]} has been added\n\n')
+                    print(f'    Host {item["nbr_name"]} has been added')
 
     pprint.pprint([asdict(h) for h in processed])
 
