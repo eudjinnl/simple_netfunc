@@ -64,7 +64,7 @@ for mac in macs_to_find:
                        
         except:
             if previous_dev["dev_name"]:
-                print(f'{mac} - {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {macdict["interface"]} Vlan{macdict["vlan"]}')
+                print(f'\n{mac} - {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {macdict["interface"]} Vlan{macdict["vlan"]}')
                 break
             else:
                 print('Unable to connect to the first device')
@@ -80,7 +80,7 @@ for mac in macs_to_find:
                 if macdict["mac"] == mac:
                     if dev_name == previous_dev["dev_name"]:
                         mac_found = True
-                        print(f'{mac} is between two devices:')
+                        print(f'\n{mac} is between two devices:')
                         print(f'     {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}')
                         print(f'     {dev_name} {dev_ip} interface {macdict["interface"]} Vlan{macdict["vlan"]}')
                         break
@@ -89,11 +89,11 @@ for mac in macs_to_find:
                             result = device.neighbors(interface=macdict["interface"])
                         # result=get_cdp_neighbors('ios', dev_ip, username, password, interface=macdict["interface"])
                         print(f'Parsing cdp output for {dev_ip}')
-                        print(macdict)
+                        #print(macdict)
                         cdp = parse_cdp(result)
                         if cdp:
                             for item in cdp:
-                                print(item)
+                                #print(item)
                                 dev_ip = item["nbr_ip"]
                                 # previous_dev["dev_name"] = item["nbr_name"]
                                 # previous_dev["dev_ip"] = item["nbr_ip"]
@@ -102,8 +102,8 @@ for mac in macs_to_find:
                             break
                         else:
                             mac_found = True
-                            print(f'{mac} - {dev_name} {dev_ip} interface {macdict["interface"]} Vlan{macdict["vlan"]}')
+                            print(f'\n{mac} - {dev_name} {dev_ip} interface {macdict["interface"]} Vlan{macdict["vlan"]}')
                             break
         else:
             mac_found = True
-            print(f'{mac} has not been found')
+            print(f'\n{mac} has not been found')
