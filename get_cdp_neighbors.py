@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     with Device(dev_ip, username, password) as device:
         facts = device.facts
-
+        
     queue = deque()
     queue.append(Host(facts['fqdn'], dev_ip, 'cisco ' + facts['model'], {}))
     known_hosts = {queue[0].name}
