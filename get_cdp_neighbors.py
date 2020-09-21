@@ -83,13 +83,7 @@ class Device:
         result = self._driver.cli([command])
         return result[command].split('\n')
 
-
-if __name__ == "__main__":
-
-    dev_ip = input('Enter device ip to start from: ')
-    username = input("Enter Username: ")
-    password = getpass.getpass()
-
+def get_hosts_cdp_neighbors(dev_ip, username, password): 
     with Device(dev_ip, username, password) as device:
         facts = device.facts
         
@@ -116,11 +110,20 @@ if __name__ == "__main__":
                     known_hosts.add(queue[-1].name)
                     print(f'    Host {item["nbr_name"]} has been added')
 
+    return processed
+
+if __name__ == "__main__":
+
+    dev_ip = input('Enter device ip to start from: ')
+    username = input("Enter Username: ")
+    password = getpass.getpass()
+
+    hosts_cdp = get_hosts_cdp_neighbors(dev_ip, username, password)
     print('\n\n')
-    pprint.pprint([asdict(h) for h in processed])
+    pprint.pprint([asdict(h) for h in hosts_cdp])
 
     print('\n\n')
-    for host in processed:
+    for host in hosts_cdp:
         print(host.name)
 
 
