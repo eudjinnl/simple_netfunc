@@ -51,9 +51,8 @@ for mac in macs_to_find:
             # facts = ios.get_facts()
             # ios.close()
             with Device(dev_ip, username, password) as device:
-                mac_table = device.mac_address_table()
+                mac_table = device.mac_address_table
                 facts = device.facts
-                print(mac_table)
             dev_name=facts["hostname"]
             if cdp:
                 for item in cdp:

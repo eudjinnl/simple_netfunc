@@ -69,6 +69,7 @@ class Device:
     def facts(self):
         return self._driver.get_facts()
 
+    @property
     def mac_address_table(self):
         return self._driver.get_mac_address_table()
 
