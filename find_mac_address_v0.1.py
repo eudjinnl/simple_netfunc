@@ -1,12 +1,12 @@
 import getpass
 import pprint
 from napalm import get_network_driver
-from get_cdp_neighbors import parse_cdp, get_cdp_neighbors
+from get_cdp_neighbors import parse_cdp, Host, Device
 import netaddr
 from netaddr import *
 
 macs_input = input('Enter one or more MAC addresses (comma separated): ')
-dev_ip = input('Enter device ip to start from: ')
+start_ip = input('Enter device ip to start from: ')
 username = input("Enter Username: ")
 password = getpass.getpass()
 
@@ -36,19 +36,24 @@ for mac in macs:
 # print(macs_to_find)
 
 for mac in macs_to_find:
+    dev_ip = start_ip
     cdp=[]
     macdict={}
     mac_found = False
     previous_dev = {"dev_name":"", "dev_ip":"", "interface":"", "vlan":""}
     while mac_found == False:
         
-        ios = driver(dev_ip, username, password)
-        print(f'while {macdict}')
+        # ios = driver(dev_ip, username, password)
+        # print(f'while {macdict}')
         try:
-            ios.open()
-            mac_table=ios.get_mac_address_table()
-            facts = ios.get_facts()
-            ios.close()
+            # ios.open()
+            # mac_table=ios.get_mac_address_table()
+            # facts = ios.get_facts()
+            # ios.close()
+            with Device(dev_ip, username, password) as device:
+                mac_table = device.mac_address_table()
+                facts = device.facts
+                print(mac_table)
             dev_name=facts["hostname"]
             if cdp:
                 for item in cdp:
@@ -81,7 +86,9 @@ for mac in macs_to_find:
                         print(f'     {dev_name} {dev_ip} interface {macdict["interface"]} Vlan{macdict["vlan"]}')
                         break
                     else:
-                        result=get_cdp_neighbors('ios', dev_ip, username, password, interface=macdict["interface"])
+                        with Device(dev_ip, username, password) as device:
+                            result = device.neighbors(interface=macdict["interface"])
+                        # result=get_cdp_neighbors('ios', dev_ip, username, password, interface=macdict["interface"])
                         print(f'Parsing cdp output for {dev_ip}')
                         print(macdict)
                         cdp = parse_cdp(result)

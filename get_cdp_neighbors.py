@@ -69,6 +69,9 @@ class Device:
     def facts(self):
         return self._driver.get_facts()
 
+    def mac_address_table(self):
+        return self._driver.get_mac_address_table()
+
     def neighbors(self, *, interface=None):
         if interface is None:
             command = 'show cdp neighbors detail'
@@ -88,7 +91,7 @@ if __name__ == "__main__":
 
     with Device(dev_ip, username, password) as device:
         facts = device.facts
-
+        
     queue = deque()
     queue.append(Host(facts['fqdn'], dev_ip, 'cisco ' + facts['model'], {}))
     known_hosts = {queue[0].name}
@@ -112,8 +115,10 @@ if __name__ == "__main__":
                     known_hosts.add(queue[-1].name)
                     print(f'    Host {item["nbr_name"]} has been added')
 
+    print('\n\n')
     pprint.pprint([asdict(h) for h in processed])
 
+    print('\n\n')
     for host in processed:
         print(host.name)
 
