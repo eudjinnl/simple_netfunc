@@ -125,8 +125,3 @@ if __name__ == "__main__":
     print('\n\n')
     for host in hosts_cdp:
         print(host.name)
-
-
-
-
-
