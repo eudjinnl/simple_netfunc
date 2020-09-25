@@ -84,31 +84,54 @@ class Device:
         return result[command].split('\n')
 
 def get_hosts_cdp_neighbors(dev_ip, username, password): 
-    with Device(dev_ip, username, password) as device:
-        facts = device.facts
-        
-    queue = deque()
-    queue.append(Host(facts['fqdn'], dev_ip, 'cisco ' + facts['model'], {}))
-    known_hosts = {queue[0].name}
-    processed = []
+    try:
+        with Device(dev_ip, username, password) as device:
+            facts = device.facts
+            
+        queue = deque()
+        queue.append(Host(facts['fqdn'], dev_ip, 'cisco ' + facts['model'], {}))
+        known_hosts = {queue[0].name}
+        processed = []
+    except:
+        print('Unable to connect to the first device')
 
     while queue:
         host = queue.pop()
         print(f'\n\nConnecting to {host.name}, ip: {host.ip}')
-        with Device(host.ip, username, password) as device:
-            result = device.neighbors()
-            print(f'   Parsing cdp output for {host.name}')
-            host.cdp = parse_cdp(result)
+        try:
+            with Device(host.ip, username, password) as device:
+                result = device.neighbors()
+                print(f'   Parsing cdp output for {host.name}')
+                host.cdp = parse_cdp(result)
 
-        processed.append(host)
+            processed.append(host)
+            print(f'    Host {host.name} has been added')
 
-        patterns = ['WS-C', 'C9200', 'C9300']
-        for item in host.cdp:
-            for pattern in patterns:
-                if pattern in item["nbr_platform"] and item["nbr_name"] not in known_hosts:
-                    queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
-                    known_hosts.add(queue[-1].name)
-                    print(f'    Host {item["nbr_name"]} has been added')
+            # # START OF BLOCK "All devices to the queue"
+            # # All cdp neighbors will be added to the queue 
+            # for item in host.cdp:
+            #     if item["nbr_name"] not in known_hosts:
+            #         queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
+            #         known_hosts.add(queue[-1].name)
+            #         print(f'     Neighbor {item["nbr_name"]} has been added to the queue')
+            # # END OF BLOCK "All devices to the queue" 
+
+            # START OF BLOCK "Filtered devices to the queue"
+            # Filtered with patetrns cdp neighbors will be added to the queue
+            # 
+            patterns = ['WS-C', 'C9200', 'C9300']
+            for item in host.cdp:
+                for pattern in patterns:
+                    if pattern in item["nbr_platform"] and item["nbr_name"] not in known_hosts:
+                        queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
+                        known_hosts.add(queue[-1].name)
+                        print(f'     Neighbor {item["nbr_name"]} has been added to the queue')
+
+            # END OF BLOCK "Filtered devices to the queue"
+
+
+        except:
+            pass
 
     return processed
 
@@ -122,6 +145,6 @@ if __name__ == "__main__":
     print('\n\n')
     pprint.pprint([asdict(h) for h in hosts_cdp])
 
-    print('\n\n')
+    print('\n\nList of added hosts:')
     for host in hosts_cdp:
         print(host.name)
