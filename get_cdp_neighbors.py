@@ -4,6 +4,16 @@ from napalm import get_network_driver
 from collections import deque
 from dataclasses import dataclass, asdict
 
+def credentials_input():
+    username = input("Enter Username: ")
+    password = getpass.getpass()
+    secret = getpass.getpass(prompt = 'Enter enable secret: ')
+
+    optional_args = {}
+    if secret:
+        optional_args['secret'] = secret
+    return username, password, optional_args
+
 def parse_cdp(result):
     cdp=[]
     i=0
@@ -54,9 +64,9 @@ class Host:
 
 class Device:
 
-    def __init__(self, ip, username, password, *,driver_type='ios'):
+    def __init__(self, ip, username, password, *,optional_args=None, driver_type='ios'):
         klass = get_network_driver(driver_type)
-        self._driver = klass(ip, username, password)
+        self._driver = klass(ip, username, password, optional_args=optional_args)
 
     def __enter__(self):
         self._driver.open()
@@ -83,9 +93,16 @@ class Device:
         result = self._driver.cli([command])
         return result[command].split('\n')
 
-def get_hosts_cdp_neighbors(dev_ip, username, password): 
+    def get_inventory(self, *, interface=None):
+        command = f'show inventory'
+
+        self._driver.cli(['terminal length 0'])
+        result = self._driver.cli([command])
+        return result[command].split('\n')
+
+def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None): 
     try:
-        with Device(dev_ip, username, password) as device:
+        with Device(dev_ip, username, password, optional_args=optional_args) as device:
             facts = device.facts
             
         queue = deque()
@@ -94,12 +111,13 @@ def get_hosts_cdp_neighbors(dev_ip, username, password):
         processed = []
     except:
         print('Unable to connect to the first device')
+        
 
     while queue:
         host = queue.pop()
         print(f'\n\nConnecting to {host.name}, ip: {host.ip}')
         try:
-            with Device(host.ip, username, password) as device:
+            with Device(host.ip, username, password, optional_args=optional_args) as device:
                 result = device.neighbors()
                 print(f'   Parsing cdp output for {host.name}')
                 host.cdp = parse_cdp(result)
@@ -138,10 +156,18 @@ def get_hosts_cdp_neighbors(dev_ip, username, password):
 if __name__ == "__main__":
 
     dev_ip = input('Enter device ip to start from: ')
-    username = input("Enter Username: ")
-    password = getpass.getpass()
+    # username = input("Enter Username: ")
+    # password = getpass.getpass()
+    # secret = getpass.getpass(prompt = 'Enter enable secret: ')
 
-    hosts_cdp = get_hosts_cdp_neighbors(dev_ip, username, password)
+    # optional_args = {}
+    # if secret:
+    #     optional_args['secret'] = secret
+
+    username, password, optional_args = credentials_input()
+       
+    
+    hosts_cdp = get_hosts_cdp_neighbors(dev_ip, username, password, optional_args)
     print('\n\n')
     pprint.pprint([asdict(h) for h in hosts_cdp])
 
