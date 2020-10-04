@@ -4,6 +4,16 @@ from napalm import get_network_driver
 from collections import deque
 from dataclasses import dataclass, asdict
 
+def credentials_input():
+    username = input("Enter Username: ")
+    password = getpass.getpass()
+    secret = getpass.getpass(prompt = 'Enter enable secret: ')
+
+    optional_args = {}
+    if secret:
+        optional_args['secret'] = secret
+    return username, password, optional_args
+
 def parse_cdp(result):
     cdp=[]
     i=0
@@ -54,9 +64,9 @@ class Host:
 
 class Device:
 
-    def __init__(self, ip, username, password, *,driver_type='ios'):
+    def __init__(self, ip, username, password, *,optional_args=None, driver_type='ios'):
         klass = get_network_driver(driver_type)
-        self._driver = klass(ip, username, password)
+        self._driver = klass(ip, username, password, optional_args=optional_args)
 
     def __enter__(self):
         self._driver.open()
@@ -83,47 +93,84 @@ class Device:
         result = self._driver.cli([command])
         return result[command].split('\n')
 
+    def get_inventory(self, *, interface=None):
+        command = f'show inventory'
 
-if __name__ == "__main__":
+        self._driver.cli(['terminal length 0'])
+        result = self._driver.cli([command])
+        return result[command].split('\n')
 
-    dev_ip = input('Enter device ip to start from: ')
-    username = input("Enter Username: ")
-    password = getpass.getpass()
-
-    with Device(dev_ip, username, password) as device:
-        facts = device.facts
+def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None): 
+    try:
+        with Device(dev_ip, username, password, optional_args=optional_args) as device:
+            facts = device.facts
+            
+        queue = deque()
+        queue.append(Host(facts['fqdn'], dev_ip, 'cisco ' + facts['model'], {}))
+        known_hosts = {queue[0].name}
+        processed = []
+    except:
+        print('Unable to connect to the first device')
         
-    queue = deque()
-    queue.append(Host(facts['fqdn'], dev_ip, 'cisco ' + facts['model'], {}))
-    known_hosts = {queue[0].name}
-    processed = []
 
     while queue:
         host = queue.pop()
         print(f'\n\nConnecting to {host.name}, ip: {host.ip}')
-        with Device(host.ip, username, password) as device:
-            result = device.neighbors()
-            print(f'   Parsing cdp output for {host.name}')
-            host.cdp = parse_cdp(result)
+        try:
+            with Device(host.ip, username, password, optional_args=optional_args) as device:
+                result = device.neighbors()
+                print(f'   Parsing cdp output for {host.name}')
+                host.cdp = parse_cdp(result)
 
-        processed.append(host)
+            processed.append(host)
+            print(f'    Host {host.name} has been added')
 
-        patterns = ['WS-C', 'C9200', 'C9300']
-        for item in host.cdp:
-            for pattern in patterns:
-                if pattern in item["nbr_platform"] and item["nbr_name"] not in known_hosts:
-                    queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
-                    known_hosts.add(queue[-1].name)
-                    print(f'    Host {item["nbr_name"]} has been added')
+            # # START OF BLOCK "All devices to the queue"
+            # # All cdp neighbors will be added to the queue 
+            # for item in host.cdp:
+            #     if item["nbr_name"] not in known_hosts:
+            #         queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
+            #         known_hosts.add(queue[-1].name)
+            #         print(f'     Neighbor {item["nbr_name"]} has been added to the queue')
+            # # END OF BLOCK "All devices to the queue" 
 
+            # START OF BLOCK "Filtered devices to the queue"
+            # Filtered with patetrns cdp neighbors will be added to the queue
+            # 
+            patterns = ['WS-C', 'C9200', 'C9300']
+            for item in host.cdp:
+                for pattern in patterns:
+                    if pattern in item["nbr_platform"] and item["nbr_name"] not in known_hosts:
+                        queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
+                        known_hosts.add(queue[-1].name)
+                        print(f'     Neighbor {item["nbr_name"]} has been added to the queue')
+
+            # END OF BLOCK "Filtered devices to the queue"
+
+
+        except:
+            pass
+
+    return processed
+
+if __name__ == "__main__":
+
+    dev_ip = input('Enter device ip to start from: ')
+    # username = input("Enter Username: ")
+    # password = getpass.getpass()
+    # secret = getpass.getpass(prompt = 'Enter enable secret: ')
+
+    # optional_args = {}
+    # if secret:
+    #     optional_args['secret'] = secret
+
+    username, password, optional_args = credentials_input()
+       
+    
+    hosts_cdp = get_hosts_cdp_neighbors(dev_ip, username, password, optional_args)
     print('\n\n')
-    pprint.pprint([asdict(h) for h in processed])
+    pprint.pprint([asdict(h) for h in hosts_cdp])
 
-    print('\n\n')
-    for host in processed:
+    print('\n\nList of added hosts:')
+    for host in hosts_cdp:
         print(host.name)
-
-
-
-
-
