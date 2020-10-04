@@ -1,7 +1,7 @@
 import getpass
 import pprint
 from napalm import get_network_driver
-from get_cdp_neighbors import get_hosts_cdp_neighbors, Device, Host
+from get_cdp_neighbors import get_hosts_cdp_neighbors, Device, Host, credentials_input
 
 items_input = input('Enter one or more item to find (comma separated): ')
 items_to_find=items_input.replace(' ','')
@@ -11,8 +11,9 @@ items_to_find=items_to_find.split(',')
 
 
 dev_ip = input('Enter device ip to start from: ')
-username = input("Enter Username: ")
-password = getpass.getpass()
+username, password, optional_args = credentials_input()
+# username = input("Enter Username: ")
+# password = getpass.getpass()
 
 hosts_cdp = get_hosts_cdp_neighbors(dev_ip, username, password)
 

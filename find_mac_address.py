@@ -1,14 +1,15 @@
 import getpass
 import pprint
 from napalm import get_network_driver
-from get_cdp_neighbors import parse_cdp, Host, Device
+from get_cdp_neighbors import parse_cdp, Host, Device, credentials_input
 import netaddr
 from netaddr import *
 
 macs_input = input('Enter one or more MAC addresses (comma separated): ')
 start_ip = input('Enter device ip to start from: ')
-username = input("Enter Username: ")
-password = getpass.getpass()
+username, password, optional_args = credentials_input()
+# username = input("Enter Username: ")
+# password = getpass.getpass()
 
 driver = get_network_driver('ios')
 
@@ -32,8 +33,9 @@ for mac in macs_to_find:
     previous_dev = {"dev_name":"", "dev_ip":"", "interface":"", "vlan":""}
     while mac_found == False:
         try:
-            with Device(dev_ip, username, password) as device:
+            with Device(dev_ip, username, password, optional_args=optional_args) as device:
                 mac_table = device.mac_address_table
+                print(mac_table)
                 facts = device.facts
             dev_name=facts["hostname"]
             if cdp:
@@ -64,7 +66,7 @@ for mac in macs_to_find:
                         print(f'     {dev_name} {dev_ip} interface {macdict["interface"]} Vlan{macdict["vlan"]}')
                         break
                     else:
-                        with Device(dev_ip, username, password) as device:
+                        with Device(dev_ip, username, password, optional_args=optional_args) as device:
                             result = device.neighbors(interface=macdict["interface"])
 
                         print(f'Parsing cdp output for {dev_ip}')
