@@ -37,7 +37,7 @@ for mac in macs_to_find:
                 mac_table = device.mac_address_table
                 print(mac_table)
                 facts = device.facts
-            dev_name=facts["hostname"]
+            dev_name=facts["fqdn"]
             if cdp:
                 for item in cdp:
                     previous_dev["dev_name"] = item["nbr_name"]
