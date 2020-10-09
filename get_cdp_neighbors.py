@@ -1,4 +1,5 @@
 import getpass
+import re
 import pprint
 from napalm import get_network_driver
 from collections import deque
@@ -13,6 +14,16 @@ def credentials_input():
     if secret:
         optional_args['secret'] = secret
     return username, password, optional_args
+
+def parse_int_name(string):
+    ciscoIntRegex = re.compile(r'(Gi|Te|Fa|Tu|Eth|Port-channel|e|Null|Vlan|Serial|Bundle-Ether)[a-zA-Z*]?[-]?[a-zA-Z*]?\d+(([\/:]\d+)+(\.\d+)?)?')
+    # line = '  0     00     Gi1/3/25  Active             0'
+    mo=ciscoIntRegex.search(string)
+    if mo: 
+        result = mo.group()
+        return result
+    else:
+        return Exception
 
 def parse_cdp(result):
     cdp=[]
@@ -93,12 +104,18 @@ class Device:
         result = self._driver.cli([command])
         return result[command].split('\n')
 
-    def get_inventory(self, *, interface=None):
+    def get_inventory(self):
         command = f'show inventory'
 
         self._driver.cli(['terminal length 0'])
         result = self._driver.cli([command])
         return result[command].split('\n')
+
+    def send_command(self, *, command=None):
+        self._driver.cli(['terminal length 0'])
+        result = self._driver.cli(command)
+        return result
+
 
 def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None): 
     try:

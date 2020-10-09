@@ -1,7 +1,7 @@
 import getpass
 import pprint
 from napalm import get_network_driver
-from get_cdp_neighbors import parse_cdp, Host, Device, credentials_input
+from get_cdp_neighbors import parse_cdp, parse_int_name, Host, Device, credentials_input
 import netaddr
 from netaddr import *
 
@@ -39,12 +39,11 @@ for mac in macs_to_find:
         try:
             with Device(dev['dev_ip'], username, password, optional_args=optional_args) as device:
                 mac_table = device.mac_address_table
-                #  print(mac_table)
                 facts = device.facts
             dev['dev_name']=facts["fqdn"]
         except:    
             if previous_dev["dev_name"]:
-                print(f'\n{mac} - {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}')
+                # print(f'\n{mac} - {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}')
                 find_mac_result.append(f'\n{mac} - {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}')
                 break
             else:
@@ -58,6 +57,21 @@ for mac in macs_to_find:
         if mac in  known_macs:
             for macdict in mac_table:
                 if macdict["mac"] == mac:
+                    if 'Port-channel' in macdict["interface"]:
+                        with Device(dev["dev_ip"], username, password, optional_args=optional_args) as device:
+                            command = [f'show interface {macdict["interface"]} etherchannel']
+                            result = device.send_command(command=command)
+                            result = result[command[0]].split('\n') 
+                            for res_str in result:
+                                try:
+                                    interface = parse_int_name(res_str)
+                                    if 'Port-channel' not in interface:
+                                        macdict["interface"] = interface
+                                        break
+                                except:
+                                    pass
+
+
                     dev["interface"] = macdict["interface"]
                     dev["vlan"] = macdict["vlan"]
                     
@@ -70,9 +84,9 @@ for mac in macs_to_find:
                     if cdp:
                         if cdp[0]["nbr_name"] == previous_dev["dev_name"]:
                             mac_found = True
-                            print(f'\n{mac} is between two devices:')
-                            print(f'     {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}')
-                            print(f'     {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
+                            # print(f'\n{mac} is between two devices:')
+                            # print(f'     {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}')
+                            # print(f'     {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
                             find_mac_result.append(f'\n{mac} is between two devices:\n     {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}\n     {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
                             break
                         else:
@@ -88,13 +102,14 @@ for mac in macs_to_find:
                             break
                     else:
                         mac_found = True
-                        print(f'\n{mac} - {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
+                        # print(f'\n{mac} - {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
                         find_mac_result.append(f'\n{mac} - {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
                         break
         else:
             mac_found = True
-            print(f'\n{mac} has not been found')
+            # print(f'\n{mac} has not been found')
             find_mac_result.append(f'\n{mac} has not been found')   
 
+print('RESULTS')
 for item in find_mac_result:
     print(item) 
