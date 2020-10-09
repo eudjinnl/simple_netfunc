@@ -16,7 +16,7 @@ def credentials_input():
     return username, password, optional_args
 
 def parse_int_name(string):
-    ciscoIntRegex = re.compile(r'(Gi|Te|Fa|Tu|Eth|Port-channel|e|Null|Vlan|Serial|Bundle-Ether)[a-zA-Z*]?[-]?[a-zA-Z*]?\d+(([\/:]\d+)+(\.\d+)?)?')
+    ciscoIntRegex = re.compile(r'(Gi|Te|Fa|Tu|Eth|Po|Port-channel|e|Null|Vlan|Serial|Bundle-Ether)[a-zA-Z*]?[-]?[a-zA-Z*]?\d+(([\/:]\d+)+(\.\d+)?)?')
     # line = '  0     00     Gi1/3/25  Active             0'
     mo=ciscoIntRegex.search(string)
     if mo: 
