@@ -11,6 +11,7 @@ username, password, optional_args = credentials_input()
 # username = input("Enter Username: ")
 # password = getpass.getpass()
 
+
 driver = get_network_driver('ios')
 
 macs=macs_input.replace(' ','')
