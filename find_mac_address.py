@@ -58,7 +58,8 @@ for mac in macs_to_find:
         if mac in  known_macs:
             for macdict in mac_table:
                 if macdict["mac"] == mac:
-                    if 'Port-channel' in macdict["interface"]:
+                    print(macdict)
+                    if 'Po' in macdict["interface"]:
                         with Device(dev["dev_ip"], username, password, optional_args=optional_args) as device:
                             command = [f'show interface {macdict["interface"]} etherchannel']
                             result = device.send_command(command=command)
