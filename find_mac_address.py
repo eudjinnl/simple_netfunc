@@ -3,7 +3,7 @@ import pprint
 from napalm import get_network_driver
 from get_cdp_neighbors import parse_cdp, parse_int_name, Host, Device, credentials_input
 import netaddr
-from netaddr import *
+from netaddr import mac_unix_expanded
 
 macs_input = input('Enter one or more MAC addresses (comma separated): ')
 start_ip = input('Enter device ip to start from: ')
