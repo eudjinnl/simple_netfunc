@@ -1,25 +1,17 @@
-import getpass
-import pprint
-from napalm import get_network_driver
-from get_cdp_neighbors import parse_cdp, parse_int_name, Host, Device, credentials_input
 import netaddr
 from netaddr import mac_unix_expanded
+from simple_netfunc import Device, credentials_input, parse_cdp, parse_int_name
 
 macs_input = input('Enter one or more MAC addresses (comma separated): ')
 start_ip = input('Enter device ip to start from: ')
 username, password, optional_args = credentials_input()
-# username = input("Enter Username: ")
-# password = getpass.getpass()
-
-
-driver = get_network_driver('ios')
 
 macs=macs_input.replace(' ','')
 macs=macs.split(',')
 
 macs_to_find=[]
-
 find_mac_result=[]
+
 for mac in macs:
     try:
         c_mac = netaddr.EUI(mac, dialect=mac_unix_expanded)
@@ -58,7 +50,7 @@ for mac in macs_to_find:
         if mac in  known_macs:
             for macdict in mac_table:
                 if macdict["mac"] == mac:
-                    if 'Port-channel' in macdict["interface"]:
+                    if 'Po' in macdict["interface"]:
                         with Device(dev["dev_ip"], username, password, optional_args=optional_args) as device:
                             command = [f'show interface {macdict["interface"]} etherchannel']
                             result = device.send_command(command=command)
