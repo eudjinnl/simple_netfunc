@@ -1,4 +1,4 @@
-from simple_netfunc import nmk_send_conf_command
+from devactions import nmk_send_conf_command
 
 connection_params = {
                     'device_type': 'cisco_ios',
