@@ -1,5 +1,5 @@
-from napalm import get_network_driver
-from get_cdp_neighbors import get_hosts_cdp_neighbors, Device, Host, credentials_input
+from get_cdp_neighbors import get_hosts_cdp_neighbors 
+from devactions import Device, credentials_input
 
 items_input = input('Enter one or more item to find (comma separated): ')
 items_to_find=items_input.replace(' ','')

@@ -1,6 +1,9 @@
 import netaddr
 from netaddr import mac_unix_expanded
-from simple_netfunc import Device, credentials_input, parse_cdp, parse_int_name
+from devactions import Device, credentials_input
+from get_cdp_neighbors import parse_cdp
+from parseit import parse_int_name
+
 
 macs_input = input('Enter one or more MAC addresses (comma separated): ')
 start_ip = input('Enter device ip to start from: ')
