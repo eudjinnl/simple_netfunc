@@ -9,11 +9,11 @@ macs_input = input('Enter one or more MAC addresses (comma separated): ')
 start_ip = input('Enter device ip to start from: ')
 username, password, optional_args = credentials_input()
 
-macs=macs_input.replace(' ','')
-macs=macs.split(',')
+macs = macs_input.replace(' ', '')
+macs = macs.split(',')
 
-macs_to_find=[]
-find_mac_result=[]
+macs_to_find = []
+find_mac_result = []
 
 for mac in macs:
     try:
@@ -26,8 +26,8 @@ for mac in macs:
 
 for mac in macs_to_find:
     dev = {}
-    cdp=[]
-    macdict={}
+    cdp = []
+    macdict = {}
     mac_found = False
     dev['dev_ip'] = start_ip
     previous_dev = {"dev_name":"", "dev_ip":"", "interface":"", "vlan":""}
@@ -36,7 +36,7 @@ for mac in macs_to_find:
             with Device(dev['dev_ip'], username, password, optional_args=optional_args) as device:
                 mac_table = device.mac_address_table
                 facts = device.facts
-            dev['dev_name']=facts["fqdn"]
+            dev['dev_name'] = facts["fqdn"]
         except:    
             if previous_dev["dev_name"]:
                 # print(f'\n{mac} - {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}')
@@ -48,7 +48,7 @@ for mac in macs_to_find:
         
         known_macs = {}
         known_macs = {macdict["mac"] for macdict in mac_table}
-        cdp={}
+        cdp = {}
 
         if mac in  known_macs:
             for macdict in mac_table:
