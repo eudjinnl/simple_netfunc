@@ -36,7 +36,7 @@ for mac in macs_to_find:
             with Device(dev['dev_ip'], username, password, optional_args=optional_args) as device:
                 mac_table = device.mac_address_table
                 facts = device.facts
-            dev['dev_name'] = facts["fqdn"]
+            dev['dev_name'] = facts["hostname"]
         except:    
             if previous_dev["dev_name"]:
                 # print(f'\n{mac} - {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}')

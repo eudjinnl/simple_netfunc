@@ -8,3 +8,14 @@ def parse_int_name(string):
         return result
     else:
         return Exception
+
+
+def parse_dev_name(string):
+    ciscoIntRegex = re.compile(r'\w{4,}[a-zA-Z0-9_\.]*\d\d')
+    mo=ciscoIntRegex.search(string)
+    if mo: 
+        result = mo.group()
+        return result
+    else:
+        return Exception
+        
