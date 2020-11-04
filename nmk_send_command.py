@@ -1,7 +1,7 @@
 from devactions import Host, credentials_input, nmk_send_conf_command
 from get_cdp_neighbors import get_hosts_cdp_neighbors
 
-PATTERNS = ['C9200L']
+PATTERNS = {'C9200L'}
 
 connection_params = {
                     'device_type': 'cisco_ios',
