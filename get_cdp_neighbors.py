@@ -3,6 +3,7 @@ from collections import deque
 
 from dataclasses import asdict
 from devactions import Host, Device, credentials_input
+from parseit import parse_dev_name
 
 def parse_cdp(result):
     cdp=[]
@@ -13,7 +14,7 @@ def parse_cdp(result):
             # parse neighbor name
             n=1
             position = result[i+n].rfind(' ')
-            neighbor["nbr_name"] = result[i+n][position+1:]
+            neighbor["nbr_name"] = parse_dev_name(result[i+n][position+1:])
 
 
             # parse neighbor ip
@@ -55,7 +56,7 @@ def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None):
             facts = device.facts
             
         # queue = deque()
-        queue.append(Host(facts['fqdn'], dev_ip, 'Cisco ' + facts['model'], {}))
+        queue.append(Host(facts['hostname'], dev_ip, 'Cisco ' + facts['model'], {}))
         known_hosts = {queue[0].name}
         # processed = []
     except:
