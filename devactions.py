@@ -72,7 +72,7 @@ def credentials_input():
 
 
 
-def nmk_send_conf_command(connection_params, commands):
+def nmk_send_conf_command(connection_params, commands, write_memory=True):
     """
     netmiko module is used
     sends configuration commands and saves config to memory in the end
@@ -88,12 +88,39 @@ def nmk_send_conf_command(connection_params, commands):
                     }
     
     commands - list of strings. Each string - single command
+
+    write_memory: if True (default) - config will be saved with "write memory" command
     """
     connection = ConnectHandler(**connection_params)
     connection.enable()
     
     output = connection.send_config_set(commands)
-    outputwr = connection.send_command('write memory')
+    if write_memory:
+        outputwr = connection.send_command('write memory')
     connection.disconnect()
     output = output + outputwr
+    return output
+
+def nmk_send_command(connection_params, command):
+    """
+    netmiko module is used
+    sends configuration commands and saves config to memory in the end
+    
+    connection_params = {
+                    'device_type': 'cisco_ios',
+                    'host': '10.1.1.3',
+                    'username': 'cisco',
+                    'password': 'cisco',
+                    'secret': 'cisco'      # optional
+                    'port': '22'           # optional, default '22'
+                    'verbose': False       # optional, default False
+                    }
+    
+    commands - string with single command
+    """
+    connection = ConnectHandler(**connection_params)
+    connection.enable()
+    
+    output = connection.send_command(command)
+    connection.disconnect()
     return output
