@@ -26,4 +26,4 @@ find_in_inventory.py
 find_mac_address.py
 get_cdp_neighbors.py
 nmk_send_command.py
-README.md
+parseit.py
