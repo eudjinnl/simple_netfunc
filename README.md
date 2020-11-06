@@ -17,3 +17,13 @@ Main functions:
 2. Finding mac addresses across the network using cdp
 3. Finding specified information in device inventory.
 4. Configure devices with sending commands with saving/no saving config after that, backaping config (needs improvements).
+
+scripts:
+
+devactions.py
+find_int_in_vlan.py
+find_in_inventory.py
+find_mac_address.py
+get_cdp_neighbors.py
+nmk_send_command.py
+README.md
