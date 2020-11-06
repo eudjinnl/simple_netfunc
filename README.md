@@ -22,6 +22,9 @@ scripts:
 
 devactions.py
 find_int_in_vlan.py
+
+devactions.py
+find_int_in_vlan.py
 find_in_inventory.py
 find_mac_address.py
 get_cdp_neighbors.py
