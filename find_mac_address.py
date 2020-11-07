@@ -1,10 +1,17 @@
+"""
+Build list of all devices using cdp crawling.
+Find mac address in mac address table
+Return mac - device name, interface, vlan or some comments
+mac address can be enteres in any form
+"""
+
 import netaddr
 from netaddr import mac_unix_expanded
 from devactions import Device, credentials_input
 from get_cdp_neighbors import parse_cdp
 from parseit import parse_int_name
 
-
+# Asking user for macs to find, ip to start cdp crawlig from and user credentials for accessing devices
 macs_input = input('Enter one or more MAC addresses (comma separated): ')
 start_ip = input('Enter device ip to start from: ')
 username, password, optional_args = credentials_input()
@@ -15,6 +22,8 @@ macs = macs.split(',')
 macs_to_find = []
 find_mac_result = []
 
+# Convertation form of mac address to form like AA:AA:AA:AA:AA:AA
+# Checking if mac address was entered or not based on it's form
 for mac in macs:
     try:
         c_mac = netaddr.EUI(mac, dialect=mac_unix_expanded)
