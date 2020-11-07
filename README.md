@@ -20,10 +20,10 @@ Main functions:
 
 scripts:
 
-devactions.py
-find_int_in_vlan.py
-find_in_inventory.py
-find_mac_address.py
-get_cdp_neighbors.py
-nmk_send_command.py
-README.md
+- devactions.py
+- find_int_in_vlan.py
+- find_in_inventory.py
+- find_mac_address.py
+- get_cdp_neighbors.py
+- nmk_send_command.py
+
