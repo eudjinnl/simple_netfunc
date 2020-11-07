@@ -3,11 +3,11 @@
 It's my first try to do some automation stuff using python which I've started to learn recently.
 
 These modules are used in scripts:
-dataclasses
-NAPALM
-netmiko
-getpass
-netaddr
+- dataclasses
+- NAPALM
+- netmiko
+- getpass
+- netaddr
 
 It's considered that all network devices are Cisco.
 It's also considered that you are able to get access to any device with the same credentials.
