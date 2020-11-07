@@ -1,3 +1,9 @@
+"""
+Build list of all devices with their cdp neighbors using cdp crawling.
+Host with it's cdp neighbors will be added to result list if it's model matches patterns in patterns variable
+and script was able to connect to device
+"""
+
 import pprint
 from collections import deque
 
@@ -6,6 +12,11 @@ from devactions import Host, Device, credentials_input
 from parseit import parse_dev_name
 
 def parse_cdp(result):
+    """
+    Parsing output of "show cdp neighbor detail" command
+    Input (variable result) - list of splitted to lines output of "show cdp neighbors" command
+    Returns list of dictionaries. Each dictionary - information of the neighbor behind the interface
+    """
     cdp=[]
     i=0
     for res_str in result:
@@ -14,15 +25,15 @@ def parse_cdp(result):
             # parse neighbor name
             n=1
             position = result[i+n].rfind(' ')
+            # parsing neighbor name by position in output and dropping domain name in it
             neighbor["nbr_name"] = parse_dev_name(result[i+n][position+1:])
-
 
             # parse neighbor ip
             n=n+2
             position = result[i+n].rfind(' ')
             neighbor["nbr_ip"] = result[i+n][position+1:]
 
-            # parse neighbor platform
+            # parse neighbor platform (model)
             n=n+1
             if 'Platform: ' not in result[i+n]:
                 n=n+1
@@ -40,6 +51,7 @@ def parse_cdp(result):
             position = result[i+n].rfind(' ')
             neighbor["nbr_int"]=result[i+n][position+1:]
 
+            # Appending neighbor information to result list of dictionaries.
             cdp.append(neighbor)
 
         i +=1
@@ -50,28 +62,36 @@ def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None):
     queue = deque()
     processed = [] 
     known_hosts = set()
+    # Defining patterns for device models. 
+    # Device will be added to crawling queue if device model fits pattern 
     patterns = {'WS-C', 'C9200', 'C9300'}
     try:
+        # Trying to connect to the first device
         with Device(dev_ip, username, password, optional_args=optional_args) as device:
+            # on success getting device facts that include hostname
             facts = device.facts
-            
-        # queue = deque()
+        # Adding device to queue for crawling
         queue.append(Host(facts['hostname'], dev_ip, 'Cisco ' + facts['model'], {}))
+        # Adding host name to set of known hosts
         known_hosts = {queue[0].name}
-        # processed = []
     except:
+        # of failure to connect print message
         print('Unable to connect to the first device')
         
 
     while queue:
+        # get device from the queue
         host = queue.pop()
         print(f'\n\nConnecting to {host.name}, ip: {host.ip}')
         try:
+            # Trying to connect to the first device
             with Device(host.ip, username, password, optional_args=optional_args) as device:
+                # on success getting cdp neigbours and patsing it
                 result = device.neighbors()
                 print(f'   Parsing cdp output for {host.name}')
                 host.cdp = parse_cdp(result)
 
+            # Adding host to resulting list of processed hosts
             processed.append(host)
             print(f'    Host {host.name} has been added')
 
@@ -88,10 +108,14 @@ def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None):
             # Filtered with patetrns cdp neighbors will be added to the queue
             # 
             # patterns = ['WS-C', 'C9200', 'C9300']
+
+            # Analysing host cdp neighbors
             for item in host.cdp:
                 for pattern in patterns:
                     if pattern in item["nbr_platform"] and item["nbr_name"] not in known_hosts:
+                        # If model matches to patterns and host is not in the known_host set add host to the queue 
                         queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
+                        # Add host name to the end of known_host set
                         known_hosts.add(queue[-1].name)
                         print(f'     Neighbor {item["nbr_name"]} has been added to the queue')
 
