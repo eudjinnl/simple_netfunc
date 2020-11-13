@@ -72,7 +72,7 @@ for host in hosts_cdp:
                     hostname  = device.facts['hostname']
                 filename = f'{backup_path}{hostname}-{year}-{month}-{day}' # Compile filename
                 command = 'sh run' 
-                # Backuping congig
+                # Backupping config
                 result = nmk_send_command(connection_params, command=command)
                 # Writing config to the file
                 with open(filename, 'w') as backup:
