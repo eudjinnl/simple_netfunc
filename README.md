@@ -38,4 +38,5 @@ scripts:
 - nmk_send_conf_command.py  
         Sending configuration connamds, saving config to memory and backuping it.
         
-- find_int_in_vlan.py       
+- find_int_in_vlan.py
+        Not usefull yet :)       
