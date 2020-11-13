@@ -39,4 +39,3 @@ scripts:
         Sending configuration connamds, saving config to memory and backuping it.
         
 - find_int_in_vlan.py       
-        Not useful yet :)
