@@ -12,7 +12,6 @@ Returns mac - device name, interface, vlan or some comments
 mac address can be entered in any form
 """
 
-import time
 import netaddr
 from netaddr import mac_unix_expanded
 from devactions import Device, credentials_input
@@ -23,8 +22,6 @@ from parseit import parse_int_name
 macs_input = input('Enter one or more MAC addresses (comma separated): ')
 start_ip = input('Enter device ip to start from: ')
 username, password, optional_args = credentials_input()
-
-start_time = time.clock()
 
 macs = macs_input.replace(' ', '')
 macs = macs.split(',')
@@ -45,6 +42,7 @@ for mac in macs:
         find_mac_result.append(f'{mac} is not a Valid MAC address\n')
 
 for mac in macs_to_find:
+    print(f'Searching for mac address {mac}')
     dev = {} # results for device we connected to will be stored here
     cdp = []
     macdict = {}
@@ -68,7 +66,7 @@ for mac in macs_to_find:
                 # If results from previous device don't exist we can't connect to the first switch.
                 print('Unable to connect to the first device')
                 break
-        
+
         known_macs = {}
         # Getting set of mac addresses from current switch mac table
         known_macs = {macdict["mac"] for macdict in mac_table}
@@ -86,17 +84,16 @@ for mac in macs_to_find:
                         with Device(dev["dev_ip"], username, password, optional_args=optional_args) as device:
                             command = [f'show interface {macdict["interface"]} etherchannel']
                             result = device.send_command(command=command)
-                            result = result[command[0]].split('\n') 
-                            for res_str in result:
-                                try:
-                                    interface = parse_int_name(res_str)
-                                    if 'Port-channel' not in interface:
-                                        # rewrite PortChannel interface with found physical interface in macdict
-                                        macdict["interface"] = interface
-                                        break
-                                except:
-                                    pass
-
+                        result = result[command[0]].split('\n') 
+                        for res_str in result:
+                            try:
+                                interface = parse_int_name(res_str)
+                                if 'Port-channel' not in interface:
+                                    # rewrite PortChannel interface with found physical interface in macdict
+                                    macdict["interface"] = interface
+                                    break
+                            except:
+                                pass
 
                     dev["interface"] = macdict["interface"]
                     dev["vlan"] = macdict["vlan"]
@@ -110,9 +107,6 @@ for mac in macs_to_find:
                     if cdp:
                         if cdp[0]["nbr_name"] == previous_dev["dev_name"]:
                             mac_found = True
-                            # print(f'\n{mac} is between two devices:')
-                            # print(f'     {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}')
-                            # print(f'     {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
                             find_mac_result.append(f'\n{mac} is between two devices:\n     {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}\n     {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
                             break
                         else:
@@ -128,19 +122,15 @@ for mac in macs_to_find:
                             break
                     else:
                         mac_found = True
-                        # print(f'\n{mac} - {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
                         find_mac_result.append(f'\n{mac} - {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
                         break
         else:
             # If there isn't mac address in mac table of current switch - end of search of this mac address.
             mac_found = True
-            # print(f'\n{mac} has not been found')
-            find_mac_result.append(f'\n{mac} has not been found')   
-
-time_end = time.clock()
+            find_mac_result.append(f'\n{mac} has not been found')
 
 print('RESULTS')
 for item in find_mac_result:
     print(item) 
 
-print(time_end - start_time, "seconds")
+
