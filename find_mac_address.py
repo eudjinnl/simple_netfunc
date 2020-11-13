@@ -59,7 +59,7 @@ for mac in macs_to_find:
         except:
             # On failure    
             if previous_dev["dev_name"]:
-                # If results from previous device exist they are results of finding this mac address
+                # If results from previous device exist they are results of searching this mac address
                 find_mac_result.append(f'\n{mac} - {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}')
                 break
             else:
@@ -68,7 +68,7 @@ for mac in macs_to_find:
                 break
 
         known_macs = {}
-        # Getting set of mac addresses from current switch mac table
+        # Filling in set of mac addresses from current switch mac table
         known_macs = {macdict["mac"] for macdict in mac_table}
         cdp = {}
 
@@ -95,41 +95,50 @@ for mac in macs_to_find:
                             except:
                                 pass
 
+                    # Store data to current device dictionary
                     dev["interface"] = macdict["interface"]
                     dev["vlan"] = macdict["vlan"]
                     
+                    # Getting cdp neighbors for the interface of current device
                     with Device(dev["dev_ip"], username, password, optional_args=optional_args) as device:
                         result = device.neighbors(interface=dev['interface'])
 
+                    # Parsing cdp output
                     print(f'Parsing cdp output for {dev["dev_name"]} {dev["dev_ip"]}')
                     cdp = parse_cdp(result)
 
                     if cdp:
+                        # if there 
                         if cdp[0]["nbr_name"] == previous_dev["dev_name"]:
+                            # If cdp neighbor's name == name of the previous device mac adderess is connected
+                            # to some device connected inbetween current and previous device 
                             mac_found = True
                             find_mac_result.append(f'\n{mac} is between two devices:\n     {previous_dev["dev_name"]} {previous_dev["dev_ip"]} interface {previous_dev["interface"]} Vlan{previous_dev["vlan"]}\n     {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
                             break
                         else:
+                            # Setting data of current device to previos device dictionary
                             previous_dev["dev_name"] = dev["dev_name"]
                             previous_dev["dev_ip"] = dev["dev_ip"]
                             previous_dev["interface"] = dev["interface"]
                             previous_dev["vlan"] = dev["vlan"]
                             
+                            # Setting data of neighbor device as current device
                             dev["dev_name"] = cdp[0]["nbr_name"]
                             dev["dev_ip"] = cdp[0]["nbr_ip"]
                             dev["interface"] = ''
                             dev["vlan"] = ''
                             break
                     else:
+                        # if there is no cdp information - mac address is found on the interface of current device
                         mac_found = True
                         find_mac_result.append(f'\n{mac} - {dev["dev_name"]} {dev["dev_ip"]} interface {dev["interface"]} Vlan{dev["vlan"]}')
                         break
         else:
-            # If there isn't mac address in mac table of current switch - end of search of this mac address.
+            # If there isn't mac address in mac table of current switch - mac address has not been found
             mac_found = True
             find_mac_result.append(f'\n{mac} has not been found')
 
-print('RESULTS')
+print('\nRESULTS')
 for item in find_mac_result:
     print(item) 
 
