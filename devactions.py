@@ -1,5 +1,5 @@
 import getpass
-import re
+import time
 
 from netmiko import ConnectHandler
 from napalm import get_network_driver
@@ -34,6 +34,7 @@ class Device:
     def __exit__(self, *exc_details):
         # Disconnecting from device
         self._driver.close()
+        time.sleep(2)
 
     @property
     def facts(self):
