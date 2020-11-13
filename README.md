@@ -21,9 +21,22 @@ Main functions:
 scripts:
 
 - devactions.py
-- find_in_inventory.py
-- find_int_in_vlan.py
-- find_mac_address.py
-- get_cdp_neighbors.py
-- nmk_send_command.py
+        Classess and finctions
+
 - parseit.py
+        Parsing some output like device and interface names
+
+- get_cdp_neighbors.py      
+        Crawling through network gathering devices with their cdp neighbors
+
+- find_mac_address.py       
+        Finding switch's inteface on wich given mac address(es) is/are
+
+- find_in_inventory.py      
+        Finding gicen information in devices inventory
+
+- nmk_send_conf_command.py  
+        Sending configuration connamds, saving config to memory and backuping it.
+        
+- find_int_in_vlan.py       
+        Not useful yet :)
