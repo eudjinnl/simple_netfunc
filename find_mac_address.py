@@ -54,7 +54,7 @@ for source_mac in macs:
         macdict = {}
         mac_found = False
         dev['dev_ip'] = start_ip
-        previous_dev = {"mac":"", "dev_name":"", "dev_ip":"", "interface":"", "vlan":"", "comments":""} # results for previous device
+        previous_dev = {"dev_name":"", "dev_ip":"", "interface":"", "vlan":""} # results for previous device
         while mac_found == False:
             try:
                 # Trying to connect to current device. On success getting device facts and mac table
