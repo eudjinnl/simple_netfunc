@@ -58,7 +58,7 @@ class Device:
         return result
 
     def neighbors(self, *, interface=None):
-        """"
+        """
         Getting cdp neighbors device using NAPALM by sending command to device.
         Returns list of strings where every string is a string from output of the command which was sent to device.
         """
@@ -74,7 +74,7 @@ class Device:
         return result[command].split('\n')
 
     def get_inventory(self):
-        """"
+        """
         Getting cdp neighbors device using NAPALM by sending command to device.
         Returns list of strings where every string is a string from output of the command which was sent to device.
         """
@@ -86,6 +86,14 @@ class Device:
 
 
 def credentials_input():
+    """Ask for credentials input
+
+    Returns:
+        username {string}: username
+        password {string}: password
+        optional_args {dicrionary}: dictionary of optional arguments. here {'secret':'SECRET_PASSWORD'}
+                                    where 'SECRET_PASSWORD' is password for entering to privileged mode ("enable" command)
+    """
     # Prompt user to enter credentials
     username = input("Enter Username: ")
     password = getpass.getpass()
