@@ -34,7 +34,7 @@ class Device:
     def __exit__(self, *exc_details):
         # Disconnecting from device
         self._driver.close()
-        time.sleep(2)
+        time.sleep(1)
 
     @property
     def facts(self):
