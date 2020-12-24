@@ -14,7 +14,7 @@ from devactions import Device, credentials_input, nmk_send_conf_command, nmk_sen
 from get_cdp_neighbors import get_hosts_cdp_neighbors
 
 # patterns of device models (platforms) whicch commands should be sent to
-PATTERNS = {'WS-C3850'}
+PATTERNS = {'C9200L'}
 
 connection_params = {
                     'device_type': 'cisco_ios',

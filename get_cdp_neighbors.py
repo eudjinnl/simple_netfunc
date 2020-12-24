@@ -3,7 +3,8 @@ Build list of all devices with their cdp neighbors using cdp crawling.
 Host with it's cdp neighbors will be added to result list if it's model matches patterns in patterns variable
 and script was able to connect to device
 """
-
+import json
+from pathlib import Path
 import pprint
 from collections import deque
 
@@ -130,14 +131,21 @@ def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None):
 
 if __name__ == "__main__":
 
+    data_path = Path("data")
+
     dev_ip = input('Enter device ip to start from: ')
     username, password, optional_args = credentials_input()
         
 
     hosts_cdp = get_hosts_cdp_neighbors(dev_ip, username, password, optional_args)
-    print('\n\n')
-    pprint.pprint([asdict(h) for h in hosts_cdp])
 
-    print('\n\nList of added hosts:')
-    for host in hosts_cdp:
-        print(host.name)
+    if hosts_cdp:
+        with open (Path(data_path, 'Hosts.json'), 'w') as f:
+            json.dump([asdict(h) for h in hosts_cdp], f, indent=4)
+
+        print('\n\n')
+        pprint.pprint([asdict(h) for h in hosts_cdp])
+
+        print('\n\nList of added hosts:')
+        for host in hosts_cdp:
+            print(host.name)
