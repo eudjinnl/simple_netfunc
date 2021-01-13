@@ -72,7 +72,7 @@ def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None):
             # on success getting device facts that include hostname
             facts = device.facts
         # Adding device to queue for crawling
-        queue.append(Host(facts['hostname'], dev_ip, 'Cisco ' + facts['model'], {}))
+        queue.append(Host(facts['hostname'], dev_ip, '', facts['model'], '', {}))
         # Adding host name to set of known hosts
         known_hosts = {queue[0].name}
     except:
@@ -87,10 +87,14 @@ def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None):
         try:
             # Trying to connect to the first device
             with Device(host.ip, username, password, optional_args=optional_args) as device:
-                # on success getting cdp neigbours and patsing it
+                # on success getting device facts, cdp neigbours and parsing it
+                facts = device.facts
                 result = device.neighbors()
-                print(f'   Parsing cdp output for {host.name}')
-                host.cdp = parse_cdp(result)
+            host.vendor = facts['vendor']
+            host.platform = facts['model']
+            host.serial_number = facts['serial_number']
+            print(f'   Parsing cdp output for {host.name}')
+            host.cdp = parse_cdp(result)
 
             # Adding host to resulting list of processed hosts
             processed.append(host)
@@ -115,7 +119,7 @@ def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None):
                 for pattern in patterns:
                     if pattern in item["nbr_platform"] and item["nbr_name"] not in known_hosts:
                         # If model matches to patterns and host is not in the known_host set add host to the queue 
-                        queue.append(Host(item["nbr_name"], item["nbr_ip"], item["nbr_platform"], {}))
+                        queue.append(Host(item["nbr_name"], item["nbr_ip"], '', item["nbr_platform"], '', {}))
                         # Add host name to the end of known_host set
                         known_hosts.add(queue[-1].name)
                         print(f'     Neighbor {item["nbr_name"]} has been added to the queue')

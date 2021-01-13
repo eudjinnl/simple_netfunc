@@ -10,7 +10,9 @@ from dataclasses import dataclass
 class Host:
     name : str
     ip : str
+    vendor : str
     platform : str
+    serial_number : str
     cdp : dict
 
 
