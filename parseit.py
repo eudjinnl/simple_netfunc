@@ -21,4 +21,7 @@ def parse_dev_name(string):
         result = mo.group()
         return result
     else:
-        return Exception
+        if string:
+            return string
+        else:
+            return 'UNKNOWN_NAME'
