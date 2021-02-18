@@ -28,7 +28,7 @@ def parse_cdp(result):
             position = result[i+n].rfind(' ')
             # parsing neighbor name by position in output and dropping domain name in it
             neighbor["nbr_name"] = parse_dev_name(result[i+n][position+1:])
-
+            
             # parse neighbor ip
             n=n+2
             position = result[i+n].rfind(' ')
