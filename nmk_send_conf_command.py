@@ -13,8 +13,8 @@ import sys
 from devactions import Device, credentials_input, nmk_send_conf_command, nmk_send_command
 from get_cdp_neighbors import get_hosts_cdp_neighbors
 
-# patterns of device models (platforms) whicch commands should be sent to
-PATTERNS = {'C9200L', 'C3650', 'C2960'}
+# patterns of device models (platforms) which commands should be sent to
+PATTERNS = {'any'}
 
 connection_params = {
                     'device_type': 'cisco_ios',
@@ -62,7 +62,7 @@ for host in hosts_cdp:
     if PATTERNS:
         # If PATTERNS exist send command only to devices which match the PATTERNS
         for pattern in PATTERNS:
-            if pattern in host.platform:
+            if pattern in host.platform or pattern == 'any':
                 connection_params['host'] = host.ip
                 # Sending commands to device
                 output = nmk_send_conf_command(connection_params, commands)
@@ -79,20 +79,20 @@ for host in hosts_cdp:
                     backup.write(result)
                     print(f'Backup of {hostname} completed successfully\n')
 
-    else:
-        # If PATTERNS don't exist send commands to each device from the list
-        connection_params['host'] = host.ip
-        # Sending commands to device
-        output = nmk_send_conf_command(connection_params, commands)
-        print(output)
-        # Getting hostname from device using NAPALM
-        with Device(host.ip, username, password, optional_args=optional_args) as device:
-            hostname = device.facts['hostname']
-        filename = f'{backup_path}{hostname}-{year}-{month}-{day}' # Compile filename
-        command = 'sh run'
-        result = nmk_send_command(connection_params, command=command)
-        # Writing config to the file
-        with open(filename, 'w') as backup:
-            backup.write(result)
-            print(f'Backup of {hostname} completed successfully\n')
+    # else:
+    #     # If PATTERNS don't exist send commands to each device from the list
+    #     connection_params['host'] = host.ip
+    #     # Sending commands to device
+    #     output = nmk_send_conf_command(connection_params, commands)
+    #     print(output)
+    #     # Getting hostname from device using NAPALM
+    #     with Device(host.ip, username, password, optional_args=optional_args) as device:
+    #         hostname = device.facts['hostname']
+    #     filename = f'{backup_path}{hostname}-{year}-{month}-{day}' # Compile filename
+    #     command = 'sh run'
+    #     result = nmk_send_command(connection_params, command=command)
+    #     # Writing config to the file
+    #     with open(filename, 'w') as backup:
+    #         backup.write(result)
+    #         print(f'Backup of {hostname} completed successfully\n')
 

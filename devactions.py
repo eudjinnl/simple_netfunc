@@ -141,7 +141,7 @@ def nmk_send_conf_command(connection_params, commands, write_memory=True):
 def nmk_send_command(connection_params, command):
     """
     netmiko module is used
-    sends configuration commands and saves config to memory in the end
+    sends command 
     
     connection_params = {
                     'device_type': 'cisco_ios',
@@ -153,7 +153,7 @@ def nmk_send_command(connection_params, command):
                     'verbose': False       # optional, default False
                     }
     
-    commands - string with single command
+    command - string with single command
     """
     connection = ConnectHandler(**connection_params)
     connection.enable()
