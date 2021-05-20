@@ -62,7 +62,7 @@ for host in hosts_cdp:
     if PATTERNS:
         # If PATTERNS exist send command only to devices which match the PATTERNS
         for pattern in PATTERNS:
-            if pattern in host.platform or pattern == 'any':
+            if pattern in host.platform or pattern in host.name or pattern == 'any':
                 connection_params['host'] = host.ip
                 # Sending commands to device
                 output = nmk_send_conf_command(connection_params, commands)
