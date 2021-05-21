@@ -14,7 +14,7 @@ from devactions import Device, credentials_input, nmk_send_conf_command, nmk_sen
 from get_cdp_neighbors import get_hosts_cdp_neighbors
 
 # patterns of device models (platforms) which commands should be sent to
-PATTERNS = {'any'}
+PATTERNS = {'KIEVASW'}
 
 connection_params = {
                     'device_type': 'cisco_ios',
@@ -58,6 +58,8 @@ connection_params['secret'] = optional_args['secret']
 # Building list of devices by using cdp crawling function
 hosts_cdp = get_hosts_cdp_neighbors(start_ip, username, password, optional_args)
 
+processed_hosts = []
+
 for host in hosts_cdp:
     if PATTERNS:
         # If PATTERNS exist send command only to devices which match the PATTERNS
@@ -78,6 +80,11 @@ for host in hosts_cdp:
                 with open(filename, 'w') as backup:
                     backup.write(result)
                     print(f'Backup of {hostname} completed successfully\n')
+                processed_hosts.append(hostname)
+
+print(f'Processed hosts: {len(processed_hosts)}\n')
+for host in processed_hosts:
+    print(host)
 
     # else:
     #     # If PATTERNS don't exist send commands to each device from the list
