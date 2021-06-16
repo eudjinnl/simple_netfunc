@@ -1,0 +1,6 @@
+parameters:
+  paths_and_files:
+    backup_path: 'some\path\here'
+    file_with_commands: 'some\path\file_with_commands.txt'
+  patterns:
+    'any'

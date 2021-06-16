@@ -9,13 +9,15 @@ If there is no the file or it is empty config files will be written in working d
 
 from datetime import datetime
 
+import yaml
 import sys
 from devactions import Device, credentials_input, nmk_send_conf_command, nmk_send_command
 from get_cdp_neighbors import get_hosts_cdp_neighbors
 
 # patterns of device models (platforms) which commands should be sent to
-PATTERNS = {'KIEVASW'}
+PATTERNS = {'any'}
 
+config_file = 'nmk_send_conf_command_config.yml'
 connection_params = {
                     'device_type': 'cisco_ios',
                     'host': '',
@@ -24,6 +26,17 @@ connection_params = {
                     'secret': '',
                     'verbose': 'True'
                     }
+
+# try:
+#     # Open file with config. 
+#     with open(config_file, 'r') as ymlfile:
+#         cfg = yaml.load(ymlfile)
+# except:
+#     print(f'No configuration file "{config_file}"')
+#     sys.exit()
+
+# backup_path = cfg['parameters']['paths_and_files']['backup_path']
+# file_with_commands = cfg['parameters']['paths_and_files']['file_with_commands']
 
 try:
     # Open file with commands. 
@@ -66,6 +79,7 @@ for host in hosts_cdp:
         for pattern in PATTERNS:
             if pattern in host.platform or pattern in host.name or pattern == 'any':
                 connection_params['host'] = host.ip
+                print(f'Connecting to host {host.name} {host.ip}\n')
                 # Sending commands to device
                 output = nmk_send_conf_command(connection_params, commands)
                 print(output)
