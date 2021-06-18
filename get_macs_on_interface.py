@@ -34,13 +34,17 @@ if __name__ == "__main__":
 #   {'active': True,
 #   'interface': 'Gi1/1/1',
 #   'last_move': -1.0,
-#   'mac': 'AA:AA:AA:AA:AA:03',
+#   'mac': 'AA:AA:AA:AA:AA:01',
 #   'moves': -1,
 #   'vlan': 999}]
 
     for mac in mac_table:
         if mac['interface']:
-            mac_on_interface.setdefault(mac['interface'],[])
-            mac_on_interface[mac['interface']].append(mac['mac'])
+            mac_on_interface.setdefault(mac['interface'],set())
+            mac_on_interface[mac['interface']].add(mac['mac'])
+    
+    for int, macs in mac_on_interface.items():
+        if len(macs) > 1:
+            print(f'Interface {int} mac addresses: {len(macs)}')
 
     pprint.pprint(mac_on_interface)
