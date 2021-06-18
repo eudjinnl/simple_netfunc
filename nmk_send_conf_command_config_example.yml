@@ -1,6 +1,55 @@
+# file contents example:
+# 
+# parameters:
+#   paths_and_files:
+#     backup_path: 'SOME\PATH\HERE\'
+#     file_with_commands: 'SOME\PATH\_file_with_commands.txt'
+#   device_patterns: any
+#   connection_params: {
+#                     'device_type': 'cisco_ios',
+#                     'host': '',
+#                     'username': '',
+#                     'password': '',
+#                     'secret': '',
+#                     'verbose': 'True'
+#                     }
+#   write_memory: True
+#
+# backup_path: path for saving devices' configuration files
+# 
+# file_with_commands: file with commands
+# 
+# device patterns: device patterns, comma separated
+#     device pattern can be:
+#     - part or full name of device's name
+#     - part or full name of device's model
+#     - "any" to match any device found by script
+#     commands will be sent to devices which are matched to the patterns
+#     example 1: device_patterns: WS-C2960,WS-C3650,NAMEOFDE
+#     example 2: any
+# 
+# connection_params: Connection paremeters for netmiko
+#      'device_type': 'device tipe',
+#      'host': '' - leave empty string, will be asked by scrypt,
+#      'username': '' - leave empty string, will be asked by scrypt,
+#      'password': '' - leave empty string, will be asked by scrypt,
+#      'secret': '' - leave empty string, will be asked by scrypt,
+#      'verbose': 'True'
+# write_memory: if True - after sending commands to device its running configuration will be saved to flash 
+#      if no write_memory parameters was set it will be set True
+#      
+
 parameters:
   paths_and_files:
-    backup_path: 'some\path\here'
-    file_with_commands: 'some\path\file_with_commands.txt'
-  patterns:
-    'any'
+    backup_path: 'c:\backups\'
+    file_with_commands: 'CiscoCommands\_cisco_commands.txt'
+  device_patterns: any
+  connection_params: {
+                    'device_type': 'cisco_ios',
+                    'host': '',
+                    'username': '',
+                    'password': '',
+                    'secret': '',
+                    'verbose': 'True'
+                    }
+  write_memory: True                    
