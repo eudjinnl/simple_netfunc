@@ -4,6 +4,7 @@ Host with it's cdp neighbors will be added to result list if it's model matches 
 and script was able to connect to device
 """
 import json
+import re
 from pathlib import Path
 import pprint
 from collections import deque
@@ -12,51 +13,34 @@ from dataclasses import asdict
 from devactions import Host, Device, credentials_input
 from parseit import parse_dev_name
 
-def parse_cdp(result):
-    """
-    Parsing output of "show cdp neighbor detail" command
-    Input (variable result) - list of splitted to lines output of "show cdp neighbors" command
-    Returns list of dictionaries. Each dictionary - information of the neighbor behind the interface
-    """
-    cdp=[]
-    i=0
-    for res_str in result:
-        if '----------' in res_str:
-            neighbor={}
-            # parse neighbor name
-            n=1
-            position = result[i+n].rfind(' ')
-            # parsing neighbor name by position in output and dropping domain name in it
-            neighbor["nbr_name"] = parse_dev_name(result[i+n][position+1:])
-            
-            # parse neighbor ip
-            n=n+2
-            position = result[i+n].rfind(' ')
-            neighbor["nbr_ip"] = result[i+n][position+1:]
 
-            # parse neighbor platform (model)
-            n=n+1
-            if 'Platform: ' not in result[i+n]:
-                n=n+1
-            position = result[i+n].find(' ')
-            position_end = result[i+n].find(',')
-            neighbor["nbr_platform"] = result[i+n][position+1:position_end]
+def parse_cdp(cdp_raw_data):
+    
+    regex = (r'Device ID: (?P<nbr_name>\S+)'
+             r'|Entry address.*\n +IP address: (?P<nbr_ip>\S+)'
+             r'|Platform: (?P<nbr_platform>\S+ ?\S+) ?.*,'
+             r'|Interface: (?P<local_int>\S+),  Port ID \(outgoing port\): (?P<nbr_int>\S+)')
 
-            # parse  local interface name
-            n=n+1
-            position = result[i+n].find(' ')
-            position_end = result[i+n].find(',')
-            neighbor["local_int"] = result[i+n][position+1:position_end]
-            # parse neighbor interface
+    result = []
 
-            position = result[i+n].rfind(' ')
-            neighbor["nbr_int"]=result[i+n][position+1:]
+    match_iter = re.finditer(regex, cdp_raw_data, re.MULTILINE)
 
-            # Appending neighbor information to result list of dictionaries.
-            cdp.append(neighbor)
-
-        i +=1
-    return cdp
+    for match in match_iter:
+        if match.lastgroup == 'nbr_name':
+            neighbor = {}
+            nbr_name = match.group(match.lastgroup)
+            nbr_name = parse_dev_name(nbr_name)
+            neighbor["nbr_name"] = nbr_name
+        elif match.lastgroup == 'nbr_int':
+            local_int = match.group('local_int')
+            nbr_int = match.group('nbr_int')
+            neighbor["local_int"] = local_int
+            neighbor["nbr_int"] = nbr_int
+            result.append(neighbor)
+        else:
+            neighbor[match.lastgroup] = match.group(match.lastgroup)          
+                
+    return result
 
 
 def get_hosts_cdp_neighbors(dev_ip, username, password, optional_args=None):
