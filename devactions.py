@@ -73,7 +73,8 @@ class Device:
 
         self._driver.cli(['terminal length 0'])
         result = self._driver.cli([command])
-        return result[command].split('\n')
+        return result[command]
+        # return result[command].split('\n')
 
     def get_inventory(self):
         """
