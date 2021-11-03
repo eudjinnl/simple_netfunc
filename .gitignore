@@ -1,9 +1,7 @@
 /.vscode
 /__pycache__
 /data
-_cisco_commands.txt
-_cisco_commands_SAFE.txt
+.gitignore
 _backup_path.txt
-_cisco_commands_dhcp_snoop_vlans.txt
-_cisco_commands_SmartLicense.txt
+nmk_send_conf_command_config.yml
 
