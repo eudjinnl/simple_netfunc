@@ -13,7 +13,7 @@ class Host:
     vendor : str
     platform : str
     serial_number : str
-    cdp : dict
+    cdp : list
 
 
 
