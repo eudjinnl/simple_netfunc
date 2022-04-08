@@ -47,6 +47,11 @@ class Device:
     def mac_address_table(self):
         # Getting mac address table from device using NAPALM.
         return self._driver.get_mac_address_table()
+    
+    @property
+    def running_config(self):
+        # Getting running config from device using NAPALM.
+        return self._driver.get_config(retrieve = 'running')['running']
 
     def send_command(self, *, command=None):
         """"
