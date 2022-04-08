@@ -127,14 +127,11 @@ for host in hosts_cdp:
                 # Getting hostname from device using NAPALM
                 with Device(host.ip, username, password, optional_args=optional_args) as device:
                     hostname  = device.facts['hostname']
+                    config = device.running_config
                 filename = f'{hostname}-{year}-{month}-{day}' # Compile filename
                 full_filename = Path(backup_path, filename) # Compile filename
-                command = 'sh run' 
-                # Backuping config
-                result = nmk_send_command(connection_params, command=command)
-                # Writing config to the file
                 with open(full_filename, 'w') as backup:
-                    backup.write(result)
+                    backup.write(config)
                     print(f'Backup of {hostname} completed successfully\n')
                 processed_hosts.append(hostname)
 
